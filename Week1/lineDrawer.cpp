@@ -96,10 +96,10 @@ int main () {
 		ball.handleInput (input, COLS, ROWS);
 		ball.update(COLS, ROWS);
 		grid [ball.getX()][ball.getY()] = 'O';
-		grid [ball.getX()][ball.getY()-1] = 'O';
-		grid [ball.getX()-1][ball.getY()] = 'O';
-		grid [ball.getX()][ball.getY()+1] = 'O';
-		grid [ball.getX()+1][ball.getY()] = 'O';
+		// grid [ball.getX()][ball.getY()-1] = 'O';
+		// grid [ball.getX()-1][ball.getY()] = 'O';
+		// grid [ball.getX()][ball.getY()+1] = 'O';
+		// grid [ball.getX()+1][ball.getY()] = 'O';
 
 		chaserBall.chaseOtherBall (ball);
 		grid [chaserBall.getX()][chaserBall.getY()] = 'X';

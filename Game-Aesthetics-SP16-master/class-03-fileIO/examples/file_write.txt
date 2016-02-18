@@ -1,0 +1,1 @@
+I love C++ and C++ loves me!

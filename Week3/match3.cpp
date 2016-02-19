@@ -158,7 +158,8 @@ int main() {
 		// vector<point> points = getMatches (point(inputX, inputY), point (inputSwapX, inputSwapY), grid);
 		vector<point> emptyStarterPoints;
 		vector<point> points = getMatches (point(inputX, inputY), grid, emptyStarterPoints);
-		// vector<point> newPoints = getMatches (point(inputSwapX, inputSwapY), grid);
+
+		points = getMatches (point(inputSwapX, inputSwapY), grid, points);
 		// points.insert (points.end(), newPoints.begin(), newPoints.end());
 		if (points.size () > 0) {
 			for (int i = 0; i < points.size(); i++) {

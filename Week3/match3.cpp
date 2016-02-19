@@ -22,9 +22,11 @@ public:
 
 char getTile(int x, int y, unsigned char data[], int size, int w, int h);
 int writeBytes(int offset, unsigned char data[]);
-vector<point> getMatches (point p1, point p2, char grid[][h]);
+// vector<point> getMatches (point p1, point p2, char grid[][h]);
+vector<point> getMatches (point p1, char grid[][h], vector<point> prevPoints);
 void clearMatches (point p, char (&grid)[w][h]);
 bool validTile (point p, int x, int y, char grid[][h]); 
+bool contains (vector<point> points, point val);
 // void clearMatches (point p, char *grid[][h]);
 
 
@@ -84,15 +86,52 @@ int main() {
 
 		cout << "\tPick x coord: ";
 		cin >> inputX;
+		while (inputX < 0 || inputX >= w) {
+			cout << "\tInvalid Entry\n";
+			cout << "\tPick a valid entry\n";
+			cin >> inputX;
+		}
 
 		cout << "\tPick y coord: ";
 		cin >> inputY;
+		while (inputY < 0 || inputY >= h) {
+			cout << "\tInvalid Entry\n";
+			cout << "\tPick a valid entry\n";
+			cin >> inputY;
+		}
 
 		cout << "\tSwap which x coord: ";
 		cin >> inputSwapX;
+		while (inputSwapX < 0 || inputSwapX >= w) {
+			cout << "\tInvalid Entry\n";
+			cout << "\tPick a valid entry\n";
+			cin >> inputSwapX;
+		}
 
 		cout << "\tSwap which y coord: ";
 		cin >> inputSwapY;
+		while (inputSwapY < 0 || inputSwapY >= h) {
+			cout << "\tInvalid Entry\n";
+			cout << "\tPick a valid entry\n";
+			cin >> inputSwapY;
+		}
+
+		if (inputX == inputSwapX && inputY == inputSwapY) {
+			cout << "\n\nCan't swap the same points! \nTry again!" << endl;
+			continue;
+		}
+		if (abs (inputX - inputSwapX) > 1 || abs (inputY - inputSwapY) > 1) {
+			cout << "\n\nMust swap adjacent points! \nTry again!" << endl;
+			continue;	
+		}
+
+		//make sure is adjacent tile
+		// if ()
+
+		// if (!validTile (point(inputX, inputY))
+		// 	!validTile (point(inputSwapX, inputY))) {
+
+		// }
 
 		//swap grid positions!
 		//STUDENTS: make sure you can only swap with ADJACENT positions
@@ -115,7 +154,12 @@ int main() {
 		// 		}
 		// 	}
 		// }
-		vector<point> points = getMatches (point(inputX, inputY), point (inputSwapX, inputSwapY), grid);
+
+		// vector<point> points = getMatches (point(inputX, inputY), point (inputSwapX, inputSwapY), grid);
+		vector<point> emptyStarterPoints;
+		vector<point> points = getMatches (point(inputX, inputY), grid, emptyStarterPoints);
+		// vector<point> newPoints = getMatches (point(inputSwapX, inputSwapY), grid);
+		// points.insert (points.end(), newPoints.begin(), newPoints.end());
 		if (points.size () > 0) {
 			for (int i = 0; i < points.size(); i++) {
 				clearMatches (points[i], grid);
@@ -162,49 +206,44 @@ bool validTile (point p, int x, int y, char grid[][h]){
 	return p.x + x >= 0 && p.x + x < w && p.y + y >= 0 && p.y + y < h;
 }
 
-vector<point> getMatches (point p1, point p2, char grid[][h]) {
+vector<point> getMatches (point p1, char grid[][h], vector<point> prevPoints) {
 	vector<point> returnPoint;
-
+	returnPoint.insert (returnPoint.end(), prevPoints.begin(), prevPoints.end());	//add in all previous points
 	for (int i = -1; i < 2; i++) {
 		for (int j = -1; j < 2; j++) {
-			// if (p1.x + i > 0 && p1.x + i < w && p1.x + j > 0 && p1.y + j < h) {
-			if (validTile (p1, i, j, grid)) {
-				if (grid[p1.x][p1.y] == grid[p1.x+i][p1.y+j]) {
-					// matches++;
-					returnPoint.push_back (point (p1.x + i, p1.y + j));
-					cout << "match on " << p1.x+i << ", " << p1.y+j << endl;
+			if (validTile (p1, i, j, grid) && grid[p1.x][p1.y] == grid[p1.x+i][p1.y+j]) {	//matching tiles
+				if (!contains (returnPoint, point(p1.x, p1.y))) {
+					returnPoint.push_back (point (p1.x, p1.y));	
 				}
-			}
-			// if (p2.x + i > 0 && p2.x + i < w && p2.x + j > 0 && p2.y + j < h) {
-			if (validTile (p2, i, j, grid)) {
-				if (grid[p2.x][p2.y] == grid[p2.x+i][p2.y+j]) {
-					// matches++;
-					returnPoint.push_back (point (p2.x + i, p2.y + j));
-					cout << "match on " << p2.x+i << ", " << p2.y+j << endl;
+
+				if (!contains (returnPoint, point(p1.x + i, p1.y + j))) {
+					vector<point> recursivePoints = getMatches (point (p1.x + i, p1.y + j), grid, returnPoint);
+					returnPoint.insert (returnPoint.end(), recursivePoints.begin(), recursivePoints.end());	
 				}
-			}
-			
+			}			
 		}
 	}
-
-	if (returnPoint.size () > 0) {
-		for (int i = 0; i < returnPoint.size (); i++) {
-			// returnPoint.		
-		}
-	}
-
-	// if (grid[inputX][inputY] == )
-
 
 	return returnPoint;
 }
+bool contains (vector<point> points, point val) {
+	for (int i = 0; i < points.size(); i++) {
+		if (points[i].x == val.x && points[i].y == val.y) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void clearMatches (point p, char (&grid)[w][h]) {
+	cout << "current point " <<  p.x << ", " << p.y << endl;
 	for (int i = -1; i < 2; i++) {
 		for (int j = -1; j < 2; j++) {
 			// if (p.x + i > 0 && p.x + i < w && p.y + j > 0 && p.y + j < h) {
 			if (validTile (p, i, j, grid)) {
-				cout << "removing on " << p.x + i << ", " << p.y + j << endl;
+				
 				if (grid[p.x + i][p.y + j] == grid[p.x][p.y]) {
+					cout << "removing on " << p.x + i << ", " << p.y + j << endl;
 					grid[p.x + i][p.y + j] = ' ';	
 				}
 				

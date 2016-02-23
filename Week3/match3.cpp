@@ -163,7 +163,9 @@ int main() {
 		// points.insert (points.end(), newPoints.begin(), newPoints.end());
 		if (points.size () > 0) {
 			for (int i = 0; i < points.size(); i++) {
-				clearMatches (points[i], grid);
+				cout << "current point " <<  points[i].x << ", " << points[i].y << endl;
+				grid[points[i].x][points[i].y] = ' ';
+				// clearMatches (points[i], grid);
 			}
 
 		} else {

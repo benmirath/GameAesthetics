@@ -20,31 +20,57 @@ public class RoomEater {
   
   public void Update () {
     int dir = (int)random (4);
-    print ("updating1");
+    boolean valid = false;
     switch (dir) {
       default:
-      case 0:  //left
-      indexX++;
+      case 0:  //right
+      if (indexX < WIDTH) {
+        map[indexX][indexY].goRight = true;
+        indexX++;
+        map[indexX][indexY].goLeft = true;
+        valid = true;
+      }
+      
       break;
       
-      case 1:  //right
-      indexX--;
+      case 1:  //left
+      if (indexX > 0) {
+        map[indexX][indexY].goLeft = true;
+        indexX--;
+        map[indexX][indexY].goRight = true;
+        valid = true;
+      }
       break;
       
       case 2:  //up
-      indexY--;
+      if (indexY > 0) {
+        map[indexX][indexY].goUp = true;
+        indexY--;
+        map[indexX][indexY].goDown = true;
+        valid = true;
+      }
       break;
       
       case 3:  //down
-      indexY++;
+      if (indexY < HEIGHT) {
+        map[indexX][indexY].goDown = true;
+        indexY++;
+        map[indexX][indexY].goUp = true;
+        valid = true;
+      }
       break;
     }
     
-    if (indexX < 0 || indexX > WIDTH || indexY < 0 || indexY > HEIGHT) {
+    if (!valid) {
       isAlive = false;
       return;
     }
-    print ("updating2");
+    
+    //if (indexX < 0 || indexX > WIDTH || indexY < 0 || indexY > HEIGHT) {
+    //  isAlive = false;
+    //  return;
+    //}
+    
     curRoom = map[indexX][indexY];  
   }
   public void Render () {

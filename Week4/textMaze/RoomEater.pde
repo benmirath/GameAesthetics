@@ -24,13 +24,12 @@ public class RoomEater {
     switch (dir) {
       default:
       case 0:  //right
-      if (indexX < WIDTH) {
+      if (indexX < WIDTH - 1) {
         map[indexX][indexY].goRight = true;
         indexX++;
         map[indexX][indexY].goLeft = true;
         valid = true;
-      }
-      
+      }      
       break;
       
       case 1:  //left
@@ -52,7 +51,7 @@ public class RoomEater {
       break;
       
       case 3:  //down
-      if (indexY < HEIGHT) {
+      if (indexY < HEIGHT - 1) {
         map[indexX][indexY].goDown = true;
         indexY++;
         map[indexX][indexY].goUp = true;
@@ -64,14 +63,10 @@ public class RoomEater {
     if (!valid) {
       isAlive = false;
       return;
+    } else {
+      curRoom = map[indexX][indexY];
     }
-    
-    //if (indexX < 0 || indexX > WIDTH || indexY < 0 || indexY > HEIGHT) {
-    //  isAlive = false;
-    //  return;
-    //}
-    
-    curRoom = map[indexX][indexY];  
+      
   }
   public void Render () {
     text ("X", curRoom.coord.x, curRoom.coord.y);

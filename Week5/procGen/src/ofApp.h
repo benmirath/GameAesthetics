@@ -43,11 +43,13 @@ public:
 	
 	int playerX;
 	int playerY;
+	bool playerAlive;
 	
 	vector<ofPoint> treasures;
 //	bool treasure[COLS][ROWS];
 	
 	int countAliveNeighbors(mapTile map[][ROWS] , int x, int y);
+	void reset ();
 	void generateMap();
 	void initializeRandWorld ();
 	void drawWorld ();

@@ -8,7 +8,7 @@ void ofApp::setup(){
 //	size(500, 500);
 //	noStroke();
 	ofFill();
-	
+	playerAlive = true;
 	for (int i = 0; i < COLS; i++) {
 		for (int j = 0; j < ROWS; j++) {
 			cellmap[i][j].isGround = false;
@@ -25,7 +25,6 @@ void ofApp::setup(){
 	placeTreasure();
 	placePlayer();
 	
-	cout << cellSize << "\n";
 	//get seed
 	//create tile grid
 	//based on seed
@@ -52,20 +51,9 @@ void ofApp::keyPressed(int key){
 
 //	treasure = new boolean[COLS][ROWS];
 	
-	if (key == OF_KEY_RETURN) {
-		for (int i = 0; i < COLS; i++) {
-			for (int j = 0; j < ROWS; j++) {
-				cellmap[i][j].isGround = false;
-				cellmap[i][j].hasTreasure = false;
-				cellmap[i][j].hasPlayer = false;
-			}
-		}
-		initializeRandWorld();
-		//	cellmap = generateMap();
-		generateMap();
-		placeTreasure();
-		placePlayer();
-
+	
+	if (key == OF_KEY_RETURN || !playerAlive) {
+		reset ();
 	}
 	
 	if (key == OF_KEY_RIGHT) {
@@ -73,9 +61,9 @@ void ofApp::keyPressed(int key){
 	} else if (key == OF_KEY_LEFT) {
 		handleInput(-1, 0);
 	} else if (key == OF_KEY_UP) {
-		handleInput(0, 1);
-	} else if (key == OF_KEY_DOWN) {
 		handleInput(0, -1);
+	} else if (key == OF_KEY_DOWN) {
+		handleInput(0, 1);
 	}
 }
 
@@ -119,7 +107,22 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 }
 
-//vector< vector <bool> > ofApp::generateMap() {
+void ofApp::reset () {
+	playerAlive = true;
+	for (int i = 0; i < COLS; i++) {
+		for (int j = 0; j < ROWS; j++) {
+			cellmap[i][j].isGround = false;
+			cellmap[i][j].hasTreasure = false;
+			cellmap[i][j].hasPlayer = false;
+		}
+	}
+	initializeRandWorld();
+	generateMap();
+	placeTreasure();
+	placePlayer();
+
+}
+
 void ofApp::generateMap() {
 	int numberOfSteps = 5;
 	for (int i = 0; i < numberOfSteps; i++) {
@@ -169,14 +172,11 @@ int ofApp::countAliveNeighbors(mapTile map[][ROWS] , int x, int y) {
 
 void ofApp::initializeRandWorld() {
 	float aliveChance = 0.45;
-//	aliveChance += COLS;
-	
 	for (int i = 0; i < COLS; i++) {
 		for (int j = 0; j < ROWS; j++) {
 			if (ofRandom(1) < aliveChance) {
 				cellmap[i][j].isGround = true;
 			}
-//			cellmap[i][j] = false;
 		}
 	}
 }
@@ -191,10 +191,10 @@ void ofApp::drawWorld() {
 				//cell occupied (brown)
 				ofSetColor(67, 56, 45);
 			} else if (cellmap[i][j].hasTreasure == true) {
-				ofSetColor(200, 200, 0);
-//			} else if (cellmap[i][j].hasPlayer == true) {
-				
-
+				if (playerAlive)
+					ofSetColor(200, 200, 0);
+				else
+					ofSetColor(200, 0, 0);
 			} else {
 				//cell open (blue)
 				ofSetColor(51, 98, 175);
@@ -262,7 +262,6 @@ void ofApp::placeTreasure() {
 			if (!cellmap[i][j].isGround) {
 				int nbs = countAliveNeighbors(cellmap, i, j);
 				if (nbs >= hiddenLimit) {
-//					treasures[][]
 					treasures.push_back(ofPoint (i,j));
 					cellmap[i][j].hasTreasure = true;
 				}
@@ -272,26 +271,20 @@ void ofApp::placeTreasure() {
 }
 
 void ofApp::placePlayer() {
-//	int hiddenLimit = 5;
 	bool playerPlaced = false;
 	while (!playerPlaced) {
 		for (int i = 0; i < COLS; i++) {
 			for (int j = 0; j < ROWS; j++) {
 				if (!cellmap[i][j].isGround && !cellmap[i][j].hasTreasure) {
-					//				int nbs = countAliveNeighbors(cellmap, i, j);
-					//				if (nbs >= hiddenLimit) {
 					playerX = i;
 					playerY = j;
 					cellmap[i][j].hasPlayer = true;
 					playerPlaced = true;
-//					cout << i << ", " << j << "\n"<< endl;
 					return;
-					//				}
 				}
 			}
 		}
 	}
-	
 }
 
 bool ofApp::movePlayer (int x, int y) {
@@ -328,27 +321,37 @@ void ofApp::handleInput (int x, int y) {
 	
 	vector<ofPoint> newPoints;
 	for (int i = 0; i < treasures.size(); i++) {
+		
+		
 		ofPoint point = treasures[i];
 		if (point.x + 1 < COLS) {
-			if (!cellmap[int (point.x + 1)][int (point.y)].isGround) {
+			if (!cellmap[int (point.x + 1)][int (point.y)].isGround
+				&& !cellmap[int (point.x + 1)][int (point.y)].hasTreasure)
+			{
 				cellmap[int (point.x + 1)][int (point.y)].hasTreasure = true;
 				newPoints.push_back(ofPoint(point.x + 1, point.y));
 			}
 		}
 		if (point.x - 1 > 0) {
-			if (!cellmap[int (point.x - 1)][int (point.y)].isGround) {
+			if (!cellmap[int (point.x - 1)][int (point.y)].isGround
+				&& !cellmap[int (point.x - 1)][int (point.y)].hasTreasure)
+			{
 				cellmap[int (point.x - 1)][int (point.y)].hasTreasure = true;
 				newPoints.push_back(ofPoint(point.x - 1, point.y));
 			}
 		}
 		if (point.y + 1 < ROWS) {
-			if (!cellmap[int (point.x + 1)][int (point.y)].isGround) {
-				cellmap[int (point.x + 1)][int (point.y)].hasTreasure = true;
+			if (!cellmap[int (point.x)][int (point.y + 1)].isGround
+				&& !cellmap[int (point.x)][int (point.y + 1)].hasTreasure)
+			{
+				cellmap[int (point.x)][int (point.y + 1)].hasTreasure = true;
 				newPoints.push_back(ofPoint(point.x, point.y + 1));
 			}
 		}
 		if (point.y - 1 > 0) {
-			if (!cellmap[int (point.x)][int (point.y + 1)].isGround) {
+			if (!cellmap[int (point.x)][int (point.y - 1)].isGround
+				&& !cellmap[int (point.x)][int (point.y - 1)].hasTreasure)
+			{
 				cellmap[int (point.x)][int (point.y - 1)].hasTreasure = true;
 				newPoints.push_back(ofPoint(point.x, point.y - 1));
 			}
